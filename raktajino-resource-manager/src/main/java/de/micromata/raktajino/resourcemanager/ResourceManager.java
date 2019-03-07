@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ParameterResolutionException;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.platform.commons.support.ReflectionSupport;
 
+/** Resource managing parameter resolver. */
 public class ResourceManager implements ParameterResolver, AfterEachCallback {
 
   @Retention(RetentionPolicy.RUNTIME)
