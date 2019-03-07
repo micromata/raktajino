@@ -9,13 +9,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.AfterEachCallback;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
@@ -129,28 +130,29 @@ public class ResourceManager implements ParameterResolver, AfterEachCallback {
 
   @Override
   public void afterEach(ExtensionContext context) {
-    if (context.getTestInstanceLifecycle().isEmpty()) {
+    if (!context.getTestInstanceLifecycle().isPresent()) {
       return; // engine node
     }
-    var lifecycle = context.getTestInstanceLifecycle().get();
-    if (lifecycle == TestInstance.Lifecycle.PER_CLASS) {
+    Lifecycle lifecycle = context.getTestInstanceLifecycle().get();
+    if (lifecycle == Lifecycle.PER_CLASS) {
       return; // don't close class resources after each test method
     }
-    var suppliers = registry.getOrDefault(context.getRequiredTestClass().getName(), Set.of());
-    if (suppliers.isEmpty()) {
+    Set<ResourceSupplier<?>> suppliers =
+        registry.getOrDefault(context.getRequiredTestClass().getName(), null);
+    if (suppliers == null) {
       return; // no "@New resource" constructor parameters registered for this test class
     }
-    var optionalTestClass = context.getTestClass();
-    if (optionalTestClass.isEmpty()) {
+    Optional<Class<?>> optionalTestClass = context.getTestClass();
+    if (!optionalTestClass.isPresent()) {
       return; // no test class, no cleanup
     }
     // find fields holding a reference to a registered supplier or the value it supplies
     // TODO exclude static fields?
-    for (var field : findFields(optionalTestClass.get(), __ -> true, TOP_DOWN)) {
-      var value =
+    for (Field field : findFields(optionalTestClass.get(), __ -> true, TOP_DOWN)) {
+      Object value =
           ReflectionSupport.tryToReadFieldValue(field, context.getRequiredTestInstance())
               .getOrThrow(RuntimeException::new);
-      for (var supplier : suppliers) {
+      for (ResourceSupplier<?> supplier : suppliers) {
         if (supplier == value || supplier.get() == value) {
           context.publishReportEntry("closing resource", supplier.get().toString());
           try {
