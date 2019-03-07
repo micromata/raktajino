@@ -71,6 +71,9 @@ public class ResourceManager implements ParameterResolver, AfterEachCallback {
     if (parameterType.isAssignableFrom(instance.getClass())) {
       return instance;
     }
+    if (parameterType.isPrimitive() && Number.class.isAssignableFrom(instance.getClass())) {
+      return instance;
+    }
     try {
       return supplier.as(parameterType);
     } catch (UnsupportedOperationException ignore) {

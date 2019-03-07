@@ -30,11 +30,6 @@ class ResourceManagerIntegrationTests {
     private static final int value = ThreadLocalRandom.current().nextInt(1, 20);
 
     @Override
-    public Object as(Class<?> parameterType) {
-      return value;
-    }
-
-    @Override
     public Integer get() {
       return value;
     }
