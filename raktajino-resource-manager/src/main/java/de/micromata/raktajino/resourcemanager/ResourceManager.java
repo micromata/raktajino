@@ -1,6 +1,7 @@
 package de.micromata.raktajino.resourcemanager;
 
 import static org.junit.platform.commons.support.HierarchyTraversalMode.TOP_DOWN;
+import static org.junit.platform.commons.support.ModifierSupport.isStatic;
 import static org.junit.platform.commons.support.ReflectionSupport.findFields;
 import static org.junit.platform.commons.support.ReflectionSupport.newInstance;
 
@@ -146,9 +147,11 @@ public class ResourceManager implements ParameterResolver, AfterEachCallback {
     if (!optionalTestClass.isPresent()) {
       return; // no test class, no cleanup
     }
-    // find fields holding a reference to a registered supplier or the value it supplies
-    // TODO exclude static fields?
+    // find non-static fields holding a reference to a registered supplier or the value it supplies
     for (Field field : findFields(optionalTestClass.get(), __ -> true, TOP_DOWN)) {
+      if (isStatic(field)) {
+        continue;
+      }
       Object value =
           ReflectionSupport.tryToReadFieldValue(field, context.getRequiredTestInstance())
               .getOrThrow(RuntimeException::new);
