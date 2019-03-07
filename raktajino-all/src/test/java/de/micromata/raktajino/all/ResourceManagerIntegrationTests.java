@@ -6,6 +6,7 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 import de.micromata.raktajino.resourcemanager.ResourceManager;
 import de.micromata.raktajino.resourcemanager.ResourceSupplier;
 import java.util.concurrent.ThreadLocalRandom;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,8 @@ class ResourceManagerIntegrationTests {
   @Test
   void verifyJupiterTestStats() {
     EngineTestKit.engine("junit-jupiter")
+        .configurationParameter(
+            "junit.jupiter.conditions.deactivate", "org.junit.*DisabledCondition")
         .selectors(selectClass(BasicUsageClass.class))
         .execute()
         .tests()
@@ -38,6 +41,7 @@ class ResourceManagerIntegrationTests {
   }
 
   @ExtendWith(ResourceManager.class)
+  @Disabled
   static class BasicUsageClass {
 
     @RepeatedTest(5)
