@@ -10,24 +10,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 class JimTests {
 
   private final Path global;
-  private final Path local;
+  private final Path instance;
 
-  public JimTests(@Singleton(JimFS.class) Path global, @New(JimFS.class) Path local) {
+  public JimTests(@Singleton(JimFS.class) Path global, @New(JimFS.class) Path instance) {
     this.global = global;
-    this.local = local;
+    this.instance = instance;
     System.out.println();
     System.out.println();
     System.out.println();
-    System.out.println("*** c'tor()");
-    System.out.println("GLOBAL     = " + global.toUri());
-    System.out.println("this.local = " + local.toUri());
+    System.out.println("** C'TOR()");
+    System.out.println("global        = " + global.toUri());
+    System.out.println("this.instance = " + instance.toUri());
   }
 
   @Test
-  void one(@New(JimFS.class) Path one) {
+  void one(@New(JimFS.class) Path local) {
     System.out.println();
-    System.out.println("**** one() = " + one.toUri());
-    System.out.println("GLOBAL     = " + global.toUri());
-    System.out.println("this.local = " + local.toUri());
+    System.out.println("** one(local) = " + local.toUri());
+    System.out.println("GLOBAL        = " + global.toUri());
+    System.out.println("this.instance = " + instance.toUri());
   }
 }
