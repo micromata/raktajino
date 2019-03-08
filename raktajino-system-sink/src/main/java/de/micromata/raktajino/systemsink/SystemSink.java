@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.ExtensionContext.Namespace;
+import org.junit.jupiter.api.extension.ExtensionContext.Store;
 import org.junit.jupiter.api.extension.ParameterContext;
 import org.junit.jupiter.api.extension.ParameterResolver;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -33,12 +34,12 @@ public @interface SystemSink {
 
     @Override
     public Object resolveParameter(ParameterContext parameterContext, ExtensionContext context) {
-      var store = context.getStore(Namespace.create(getClass(), context.getRequiredTestMethod()));
+      Store store = context.getStore(Namespace.create(getClass(), context.getRequiredTestMethod()));
       return store.getOrComputeIfAbsent(Streams.class, key -> new Streams());
     }
   }
 
-  class Streams implements ExtensionContext.Store.CloseableResource {
+  class Streams implements AutoCloseable, Store.CloseableResource {
 
     private final PrintStream standardOut, standardErr;
     private final ByteArrayOutputStream out, err;
