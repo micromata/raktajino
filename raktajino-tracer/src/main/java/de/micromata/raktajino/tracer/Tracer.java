@@ -20,7 +20,8 @@ public class Tracer implements TestExecutionListener {
   @Override
   public void testPlanExecutionStarted(TestPlan testPlan) {
     try {
-      Files.write(root.resolve("test.plan.execution.begin"), testPlan.toString().getBytes());
+      long tests = testPlan.countTestIdentifiers(TestIdentifier::isTest);
+      Files.write(root.resolve("test.plan.execution.begin.txt"), (tests + " tests").getBytes());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
@@ -29,8 +30,9 @@ public class Tracer implements TestExecutionListener {
   @Override
   public void testPlanExecutionFinished(TestPlan testPlan) {
     try {
-      Files.write(root.resolve("test.plan.execution.end"), testPlan.toString().getBytes());
-      System.out.println(root.toUri());
+      long tests = testPlan.countTestIdentifiers(TestIdentifier::isTest);
+      Files.write(root.resolve("test.plan.execution.end.txt"), (tests + " tests").getBytes());
+      System.out.printf("raktajino-tracer (%d): %s%n", tests, root.toUri());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
@@ -41,7 +43,7 @@ public class Tracer implements TestExecutionListener {
     try {
       Path path = root.resolve(path(testIdentifier.getUniqueId()));
       Files.createDirectories(path);
-      Files.write(path.resolve("test.execution.begin"), testIdentifier.toString().getBytes());
+      Files.write(path.resolve("test.execution.begin.txt"), testIdentifier.toString().getBytes());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
@@ -49,26 +51,25 @@ public class Tracer implements TestExecutionListener {
 
   @Override
   public void dynamicTestRegistered(TestIdentifier testIdentifier) {
+    Path path = root.resolve(path(testIdentifier.getUniqueId()));
     try {
-      Path path = root.resolve(path(testIdentifier.getUniqueId()));
       Files.createDirectories(path);
-      Files.write(path.resolve("test.execution.begin"), testIdentifier.toString().getBytes());
+      Files.write(path.resolve("test.execution.begin.txt"), testIdentifier.toString().getBytes());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
   }
 
   @Override
-  public void executionFinished(
-      TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+  public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult result) {
     Path path = root.resolve(path(testIdentifier.getUniqueId()));
     if (Files.notExists(path)) {
       throw new IllegalStateException("Expected path to exist: " + path);
     }
-    TestExecutionResult.Status status = testExecutionResult.getStatus();
+    TestExecutionResult.Status status = result.getStatus();
     try {
-      Files.write(path.resolve("test.execution.end"), testExecutionResult.toString().getBytes());
-      Files.write(path.resolve("test.status." + status), status.toString().getBytes());
+      Files.write(path.resolve("test.execution.end.txt"), result.toString().getBytes());
+      Files.write(path.resolve("test.status." + status + ".txt"), status.toString().getBytes());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
@@ -77,12 +78,9 @@ public class Tracer implements TestExecutionListener {
   @Override
   public void executionSkipped(TestIdentifier testIdentifier, String reason) {
     Path path = root.resolve(path(testIdentifier.getUniqueId()));
-    if (Files.exists(path)) {
-      throw new IllegalStateException("Path already created?! " + path);
-    }
     try {
       Files.createDirectories(path);
-      Files.write(path.resolve("test.execution.skipped"), reason.getBytes());
+      Files.write(path.resolve("test.execution.skipped.txt"), reason.getBytes());
     } catch (IOException e) {
       // TODO Handle IOException.
     }
@@ -96,7 +94,7 @@ public class Tracer implements TestExecutionListener {
     for (int i = 0; i < len; i++) {
       char ch = string.charAt(i);
       if (ch == ':') { // `:` is illegal in java.nio.file.Path
-        builder.append(' ');
+        builder.append('~');
         continue;
       }
       if (ch < ' '
