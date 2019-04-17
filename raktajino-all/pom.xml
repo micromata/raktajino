@@ -22,11 +22,16 @@
             <artifactId>raktajino-system-sink</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>de.micromata.raktajino</groupId>
+            <artifactId>raktajino-tracer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-testkit</artifactId>
-            <version>1.4.0</version>
+            <version>${junit.platform.version}</version>
         </dependency>
     </dependencies>
 

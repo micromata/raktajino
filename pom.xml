@@ -39,12 +39,14 @@
         <maven.compiler.testRelease>11</maven.compiler.testRelease>
         <maven.compiler.testSource>11</maven.compiler.testSource>
         <maven.compiler.testTarget>11</maven.compiler.testTarget>
+        <junit.platform.version>1.4.0</junit.platform.version>
         <junit.jupiter.version>5.4.0</junit.jupiter.version>
     </properties>
 
     <modules>
         <module>raktajino-resource-manager</module>
         <module>raktajino-system-sink</module>
+        <module>raktajino-tracer</module>
 
         <module>raktajino-all</module>
     </modules>
