@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 class TracerTests {
   @Test
-  void defaultConstructorWithDefaultProperties() {
+  void defaultConstructorWithDefaultProperties() throws Exception {
     Tracer tracer = new Tracer();
     assertNotNull(tracer.toString());
   }
