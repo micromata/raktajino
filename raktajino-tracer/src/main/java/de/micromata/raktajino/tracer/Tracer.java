@@ -60,7 +60,8 @@ public class Tracer implements TestExecutionListener {
   }
 
   @Override
-  public void executionFinished(TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
+  public void executionFinished(
+      TestIdentifier testIdentifier, TestExecutionResult testExecutionResult) {
     Path path = root.resolve(path(testIdentifier.getUniqueId()));
     if (Files.notExists(path)) {
       throw new IllegalStateException("Expected path to exist: " + path);
