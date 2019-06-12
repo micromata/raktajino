@@ -54,7 +54,7 @@ class ResourceManagerIntegrationTests {
   static class DiceTests {
 
     @RepeatedTest(5)
-    void success(@ResourceManager.New(Dice.class) int value) {
+    void success(@ResourceManager.Shared(type = Dice.class, name = "D20") int value) {
       assertTrue(0 < value && value <= 20);
     }
   }
